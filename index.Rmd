@@ -3,16 +3,23 @@ title: "index"
 author: "Murali Shanker"
 date: "6/27/2020"
 output: html_document
-toc: true
+
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  comment = "#>",
+  fig.path = "figs", # use only for single Rmd files
+  collapse = TRUE,
+  echo = TRUE)
 ```
+\ 
 
 # Scope
 
 This document will maintain important links and other information for students in MSBA
+
+
 
 ### R and RStudio
 
@@ -20,6 +27,7 @@ This document will maintain important links and other information for students i
 2. [R for Data Science](https://r4ds.had.co.nz/)
 3. [Interactive R Markdown tutorial](https://commonmark.org/help/tutorial/)
 4. [Flipbooks](https://evamaerey.github.io/little_flipbooks_library/about/what_the_flipbook)
+5. []
 
 
 

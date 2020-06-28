@@ -1,0 +1,6 @@
+name: "Important Links"
+navbar:
+  title: "Important Links"
+  left:
+    - text: "Home"
+      href: index.html
