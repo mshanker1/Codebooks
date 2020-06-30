@@ -1,9 +1,13 @@
 ---
-title: "index"
+title: "Table of Contents"
 author: "Murali Shanker"
 date: "6/27/2020"
-output: html_document
-
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    highlight: tango
+    theme: flatly
 ---
 
 ```{r setup, include=FALSE}
@@ -13,21 +17,20 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   echo = TRUE)
 ```
-\ 
 
 # Scope
 
-This document will maintain important links and other information for students in MSBA
+
+This document will serve as a template to demonstrate code and other information for our MSBA students.
 
 
-
-### R and RStudio
+# R and RStudio
 
 1. [R Studio Book](https://rstudio4edu.github.io/rstudio4edu-book/)
 2. [R for Data Science](https://r4ds.had.co.nz/)
 3. [Interactive R Markdown tutorial](https://commonmark.org/help/tutorial/)
 4. [Flipbooks](https://evamaerey.github.io/little_flipbooks_library/about/what_the_flipbook)
-5. []
+5. [R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/)
 
 
 
