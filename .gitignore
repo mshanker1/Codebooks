@@ -2,3 +2,18 @@
 .Rhistory
 .RData
 .Ruserdata
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+
+# Test reports
+*_report.txt
+*_report.md
+*_report.html
