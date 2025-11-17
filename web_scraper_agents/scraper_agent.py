@@ -3,6 +3,7 @@ Web Scraper Agent - responsible for fetching and extracting web content.
 """
 from typing import Optional
 import requests
+import time
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 
@@ -21,6 +22,10 @@ class WebScraperAgent(BaseAgent):
             'user_agent',
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         )
+        self.max_depth = self.config.get('max_depth', 2)
+        self.max_pages = self.config.get('max_pages', 50)
+        self.visited_urls = set()
+        self.base_domain = None
 
     def execute(self, url: str) -> ExtractedData:
         """
@@ -145,6 +150,113 @@ class WebScraperAgent(BaseAgent):
             metadata=metadata,
             main_content=main_content
         )
+
+    def execute_crawl(self, start_url: str, requirement: Optional[str] = None) -> list:
+        """
+        Crawl website starting from start_url and optionally filter by requirement.
+
+        Args:
+            start_url: The URL to start crawling from
+            requirement: Optional keyword/phrase to filter pages
+
+        Returns:
+            List of ExtractedData objects
+        """
+        self.log_info(f"Starting crawl from: {start_url}")
+        self.base_domain = urlparse(start_url).netloc
+        self.visited_urls = set()
+        results = []
+
+        def crawl_recursive(url: str, depth: int):
+            """Recursively crawl pages."""
+            # Check stopping conditions
+            if depth > self.max_depth:
+                self.log_info(f"Max depth reached at: {url}")
+                return
+            if len(self.visited_urls) >= self.max_pages:
+                self.log_info(f"Max pages limit reached")
+                return
+            if url in self.visited_urls:
+                return
+
+            # Only crawl same domain
+            parsed_url = urlparse(url)
+            if parsed_url.netloc != self.base_domain:
+                return
+
+            # Normalize URL (remove fragments)
+            normalized_url = f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}"
+            if parsed_url.query:
+                normalized_url += f"?{parsed_url.query}"
+
+            if normalized_url in self.visited_urls:
+                return
+
+            self.visited_urls.add(normalized_url)
+            self.log_info(f"Crawling [{len(self.visited_urls)}/{self.max_pages}]: {normalized_url}")
+
+            # Extract data from current page
+            try:
+                # Add a small delay to be respectful to the server
+                time.sleep(0.5)
+
+                extracted_data = self.execute(normalized_url)
+
+                # If requirement specified, check if page matches
+                if requirement:
+                    if self._matches_requirement(extracted_data, requirement):
+                        self.log_info(f"✓ Match found: {normalized_url}")
+                        results.append(extracted_data)
+                    else:
+                        self.log_info(f"✗ No match: {normalized_url}")
+                else:
+                    results.append(extracted_data)
+
+                # Extract and crawl sub-pages
+                for link in extracted_data.links:
+                    link_url = link['url']
+                    crawl_recursive(link_url, depth + 1)
+
+            except Exception as e:
+                self.log_error(f"Error crawling {normalized_url}: {str(e)}")
+
+        # Start recursive crawl
+        crawl_recursive(start_url, 0)
+        self.log_info(f"Crawl complete. Visited {len(self.visited_urls)} pages, found {len(results)} matching pages")
+        return results
+
+    def _matches_requirement(self, data: ExtractedData, requirement: str) -> bool:
+        """
+        Check if extracted data matches the requirement.
+
+        Args:
+            data: ExtractedData object
+            requirement: Keyword/phrase to search for
+
+        Returns:
+            True if requirement is found in the content
+        """
+        requirement_lower = requirement.lower()
+
+        # Search in title
+        if data.title and requirement_lower in data.title.lower():
+            return True
+
+        # Search in headings
+        for heading in data.headings:
+            if requirement_lower in heading.lower():
+                return True
+
+        # Search in paragraphs
+        for para in data.paragraphs:
+            if requirement_lower in para.lower():
+                return True
+
+        # Search in main content
+        if data.main_content and requirement_lower in data.main_content.lower():
+            return True
+
+        return False
 
     def _extract_main_content(self, soup: BeautifulSoup) -> str:
         """
