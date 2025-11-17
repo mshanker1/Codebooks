@@ -41,6 +41,7 @@ class AnalysisResult:
     word_count: int = 0
     content_type: str = "general"
     importance_score: float = 0.0
+    relevance_score: float = 0.0
 
 
 @dataclass
@@ -48,4 +49,21 @@ class PresentationResult:
     """Represents the final formatted presentation."""
     url: str
     formatted_text: str
+    timestamp: datetime = field(default_factory=datetime.now)
+
+
+@dataclass
+class PageResult:
+    """Represents a single page's extracted data and analysis."""
+    extracted_data: ExtractedData
+    analysis: AnalysisResult
+
+
+@dataclass
+class MultiPageResult:
+    """Represents results from crawling multiple pages."""
+    base_url: str
+    requirement: Optional[str]
+    total_pages_crawled: int
+    matching_pages: List[PageResult] = field(default_factory=list)
     timestamp: datetime = field(default_factory=datetime.now)

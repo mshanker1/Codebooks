@@ -64,6 +64,32 @@ Examples:
         help='Suppress agent logging output'
     )
 
+    parser.add_argument(
+        '--requirement',
+        help='Specific requirement or keyword to search for across pages',
+        default=None
+    )
+
+    parser.add_argument(
+        '--crawl',
+        action='store_true',
+        help='Enable crawling to search across sub-pages'
+    )
+
+    parser.add_argument(
+        '--max-depth',
+        type=int,
+        default=2,
+        help='Maximum crawl depth for sub-pages (default: 2)'
+    )
+
+    parser.add_argument(
+        '--max-pages',
+        type=int,
+        default=50,
+        help='Maximum number of pages to crawl (default: 50)'
+    )
+
     # Parse arguments
     args = parser.parse_args()
 
@@ -75,7 +101,9 @@ Examples:
     # Configure the orchestrator
     config = {
         'scraper': {
-            'timeout': args.timeout
+            'timeout': args.timeout,
+            'max_depth': args.max_depth,
+            'max_pages': args.max_pages
         },
         'analyzer': {
             'max_summary_sentences': 5,
@@ -96,7 +124,12 @@ Examples:
         orchestrator = AgentOrchestrator(config)
 
         # Execute the pipeline
-        result = orchestrator.execute(args.url, save_to_file=args.output)
+        result = orchestrator.execute(
+            args.url,
+            requirement=args.requirement,
+            crawl=args.crawl,
+            save_to_file=args.output
+        )
 
         # Print results to console
         print("\n")
