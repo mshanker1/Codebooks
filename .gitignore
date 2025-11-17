@@ -13,7 +13,9 @@ env/
 venv/
 *.egg-info/
 
-# Test reports
+# Test reports and output files
 *_report.txt
 *_report.md
 *_report.html
+test_output.txt
+test_*.txt
